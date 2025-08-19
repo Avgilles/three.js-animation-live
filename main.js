@@ -41,9 +41,7 @@ loader.load(url, function (gltf) {
     });
 });
   
-const geometry = new THREE.BoxGeometry( 1, 1, 1 );
-const cube = new THREE.Mesh( geometry, material );
-// scene.add( cube );
+
 
 // console.log(gltfLoader);
 const light = new THREE.DirectionalLight(0xffffff, 1);
@@ -53,32 +51,37 @@ scene.add(light);
 camera.position.z = 5;
 
 
+const geometry = new THREE.SphereGeometry( .05, 8, 8 );
+const sphere = new THREE.Mesh( geometry, material );
+sphere.position.set(.2, 0, 5); 
+// sphere.position = camera.position.xyz; 
+scene.add( sphere );
+
 let wheel_y = 0;
 
 document.addEventListener("wheel", (event) => {
-    wheel_y += event.deltaY * 0.01; // Ajuster la sensibilité
-    // console.log("Delta Y:", event.deltaY); // valeur positive ou négative
-    console.log("wheel_y:", wheel_y); // valeur positive ou négative
-
+    wheel_y += event.deltaY * 0.001; 
+    console.log("wheel_y:", wheel_y); 
+    console.log("camera.position:", camera.position);
 
   });
 
-  
+let seed1 = Math.random();
 
 function animate() {
 
-//    cube.rotation.x += 0.01;
-//    cube.rotation.y += 0.01;
-//    cube.position.x = Math.sin(clock.getElapsedTime());
-    // cube.position.z = wheel_y;
-    if (scenemesh) {
-        scenemesh.traverse((child) => {
-            if (child.isMesh) {
-                // Rotation sur Y à chaque frame
-                child.position.z = wheel_y; // Appliquer la position Z basée sur la molette de la souris
-            }
-        });
-    }
-  renderer.render( scene, camera );
+    camera.position.z = 5 + wheel_y; // Ajuster la position de la caméra en fonction de la molette de la souris
+    camera.lookAt(0, 0, 0); // Assurez-vous que la caméra regarde toujours le centre de la scène
+    camera.rotateZ(wheel_y*.25); // Rotation de la caméra autour de l'axe Z
+    sphere.position.z = 5+wheel_y * 1.7;
+    sphere.position.x = Math.sin(wheel_y*1.5) * 0.25;
+    sphere.position.y = Math.sin(wheel_y*3) * .1;
+
+
+
+    // sphere.position.z -= 0.01;
+    // sphere.position.x += Math.sin(clock.getElapsedTime())*0.005;
+    
+    renderer.render( scene, camera );
 
 }
