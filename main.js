@@ -61,30 +61,61 @@ sphere.position.set(.2, 0, 5);
 scene.add( sphere );
 
 let wheel_y = 0;
+let pshere = (sphere.position.x, sphere.position.y, sphere.position.z);
+
+let points = [];
+points.push( new THREE.Vector3(sphere.position.x, sphere.position.y, sphere.position.z ) );
+// points.push( new THREE.Vector3( 0, 10, 0 ) );
+// points.push( new THREE.Vector3( 10, 0, 0 ) );
+
+let geo = new THREE.BufferGeometry().setFromPoints( points );
+
+let line = new THREE.Line( geo, material );
+
 
 document.addEventListener("wheel", (event) => {
-    wheel_y += event.deltaY * 0.001; 
-    console.log("wheel_y:", wheel_y); 
-    console.log("camera.position:", camera.position);
+    wheel_y += event.deltaY * 0.001;
+    console.log("event.deltaY :", event.deltaY );
+    // console.log("wheel_y:", wheel_y); 
+    // console.log("camera.position:", camera.position);
 
-  });
-
-let seed1 = Math.random();
-
-function animate() {
 
     camera.position.z = 5 + wheel_y; // Ajuster la position de la caméra en fonction de la molette de la souris
     camera.lookAt(0, 0, 0); // Assurez-vous que la caméra regarde toujours le centre de la scène
-    camera.rotateZ(wheel_y*.25); // Rotation de la caméra autour de l'axe Z
+    // camera.rotateZ(wheel_y*.25); // Rotation de la caméra autour de l'axe Z
     sphere.position.z = 5+wheel_y * 1.7;
     sphere.position.x = Math.sin(wheel_y*1.5) * 0.25;
     sphere.position.y = Math.sin(wheel_y*3) * .1;
     light.position.set(sphere.position.x, sphere.position.y, sphere.position.z);
+    /// lenght(points[-1] - sphere.position) > 0.01
 
 
-    // sphere.position.z -= 0.01;
-    // sphere.position.x += Math.sin(clock.getElapsedTime())*0.005;
-    
+    if (event.deltaY < 0 ) {
+        points.push(new THREE.Vector3(sphere.position.x, sphere.position.y, sphere.position.z)); 
+    }
+    else if (event.deltaY > 0 ) {
+        // points.splice(0, 1);
+        points.pop(); 
+
+    }
+    // line.computeLineDistances();
+    scene.remove(line);
+    line.frustumCulled = false;
+    geo = new THREE.BufferGeometry().setFromPoints( points );
+    line = new THREE.Line( geo, material );
+    scene.add( line );
+
+
+    console.log("points:", points);
+
+  });
+
+
+
+
+
+function animate() {
+    renderer.setClearColor(0x000000, 1); // Couleur de fond noire
     renderer.render( scene, camera );
 
 }
