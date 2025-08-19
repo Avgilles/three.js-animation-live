@@ -11,7 +11,10 @@ renderer.setAnimationLoop( animate );
 document.body.appendChild( renderer.domElement );
 
 
-const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+const material = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+
+material.emissive.set(1,1,1); 
+material.emissiveIntensity = 10;
 const gltfLoader  = new GLTFLoader();
 
 const url = '/models/scene4.gltf'; // Chemin vers votre fichier GLTF
@@ -44,7 +47,7 @@ loader.load(url, function (gltf) {
 
 
 // console.log(gltfLoader);
-const light = new THREE.DirectionalLight(0xffffff, 1);
+const light = new THREE.PointLight(0xffffff, 1);
 light.position.set(5, 10, 7.5);
 scene.add(light);
 
@@ -76,7 +79,7 @@ function animate() {
     sphere.position.z = 5+wheel_y * 1.7;
     sphere.position.x = Math.sin(wheel_y*1.5) * 0.25;
     sphere.position.y = Math.sin(wheel_y*3) * .1;
-
+    light.position.set(sphere.position.x, sphere.position.y, sphere.position.z);
 
 
     // sphere.position.z -= 0.01;
