@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<Autodesk_Cache_File>
+  <cacheType Type="OneFile" Format="mcc"/>
+  <time Range="250-12000"/>
+  <cacheTimePerFrame TimePerFrame="250"/>
+  <cacheVersion Version="2.0"/>
+  <Channels>
+    <channel0 ChannelName="ANIM_GLTF" ChannelType="DoubleVectorArray" ChannelInterpretation="Points" SamplingType="Regular" SamplingRate="250" StartTime="250" EndTime="12000"/>
+  </Channels>
+</Autodesk_Cache_File>
