@@ -17,12 +17,49 @@ const camera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.inner
 camera.setFocalLength(10);
 
 
-const material = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+const fresnelShader = new THREE.ShaderMaterial({
+    uniforms: {
+        cameraPosition: { value: new THREE.Vector3() },
+        color: { value: new THREE.Color(0xffffff) },
+        power: { value: 1.5 }
+    },
+    vertexShader: `
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+            vNormal = normalize(normalMatrix * normal);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vViewDir = normalize(-mvPosition.xyz);
+            gl_Position = projectionMatrix * mvPosition;
+        }
+    `,
+    fragmentShader: `
+        uniform vec3 color;
+        uniform float power;
+        varying vec3 vNormal;
+        varying vec3 vViewDir;
+        void main() {
+            float fresnel = pow(1.0 - dot(vNormal, vViewDir), power);
+            gl_FragColor = vec4(color * fresnel, fresnel); // alpha = fresnel
+        }
+    `,
+    transparent: true
+});
 
-material.emissive.set(1,1,1); 
-// material.emissiveIntensity = 10;
-material.emissiveIntensity = 0.1;
 
+
+const material1 = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+const material2 = new THREE.MeshStandardMaterial( { color: 0xffffff } );
+
+
+material1.emissive.set(1,1,1); 
+material1.emissiveIntensity = 0.1;
+material1.transparent= true;
+material1.opacity = 0.5;
+
+
+material2.emissive.set(1,1,1); 
+material2.emissiveIntensity = 0.1;
 
 // const light = new THREE.PointLight(0xffffff, 1);
 // light.position.set(0, 3, 0);
@@ -31,10 +68,12 @@ material.emissiveIntensity = 0.1;
 camera.position.z = 5;
 
 const geometry = new THREE.BoxGeometry( 2.5, 2.5, 2.5 );
-const cube = new THREE.Mesh( geometry, material );
+const cube = new THREE.Mesh( geometry, fresnelShader );
+
+const geo2 = new THREE.SphereGeometry( 1, 16, 16);
+const sphere = new THREE.Mesh( geo2, material2 );
+scene.add( sphere );
 scene.add( cube );
-
-
 
 
 const BLOOM_SCENE = 1;
@@ -71,6 +110,8 @@ bloomComposer.addPass( outputPass );
 
 const finalComposer = new EffectComposer( renderer );
 
+
+
 // controls.update();
 
 
@@ -78,15 +119,10 @@ function animate() {
 
     requestAnimationFrame( animate );
 
-    // required if controls.enableDamping or controls.autoRotate are set to true
     controls.update();
 
-    renderer.render( scene, camera );
-    // scene.traverse( darkenNonBloomed );
     bloomComposer.render();
-    // scene.traverse( restoreMaterial );
-
-    // render the entire scene, then render bloom scene on top
+    // renderer.render( scene, camera );
     finalComposer.render();
 
 }
